@@ -5,13 +5,17 @@ services:
     image: postgres:alpine
     restart: always
     volumes:
-      - ./db:/var/lib/postgresql/data:Z
+      - ./nextcloud-database:/var/lib/postgresql/data:Z
     env_file:
       - db.env
+    networks:
+      - nextcloud-network
 
   redis:
     image: redis:alpine
     restart: always
+    networks:
+      - nextcloud-network
 
   app:
     image: nextcloud:fpm-alpine
@@ -26,17 +30,8 @@ services:
     depends_on:
       - db
       - redis
-
-  web:
-    build: ./web
-    restart: always
-    volumes:
-      - ./nextcloud-data:/var/www/html:z,ro
-    depends_on:
-      - app
     networks:
-      - proxy-tier
-      - default
+      - nextcloud-network
 
   cron:
     image: nextcloud:fpm-alpine
@@ -47,6 +42,18 @@ services:
     depends_on:
       - db
       - redis
+    networks:
+      - nextcloud-network
+
+  web:
+    build: ./web
+    restart: always
+    volumes:
+      - ./nextcloud-data:/var/www/html:z,ro
+    depends_on:
+      - app
+    networks:
+      - nextcloud-network
 
   proxy:
     image: nginx:latest
@@ -57,32 +64,10 @@ services:
       - ./nginx-proxy.conf:/etc/nginx/nginx.conf
       - ./certs:/etc/nginx/certs
     networks:
-      - proxy-tier
+      - nextcloud-network
     depends_on:
       - web
 
-  # self signed certificate
-  omgwtfssl:
-    image: paulczar/omgwtfssl
-    restart: "no"
-    volumes:
-      - ./certs:/certs
-    environment:
-      - SSL_SUBJECT=nextcloud.local
-      - CA_SUBJECT=admin@local.com
-      - SSL_KEY=/certs/nextcloud.local.key
-      - SSL_CSR=/certs/nextcloud.local.csr
-      - SSL_CERT=/certs/nextcloud.local.crt
-    networks:
-      - proxy-tier
-
-# volumes:
-#   db:
-#   nextcloud-data:
-#   certs:
-#   acme:
-#   vhost.d:
-#   html:
-
 networks:
-  proxy-tier:
+  nextcloud-network:
+    driver: bridge

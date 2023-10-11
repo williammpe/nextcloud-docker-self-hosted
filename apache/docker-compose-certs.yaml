@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+
+  # self signed certificate
+  omgwtfssl:
+    image: paulczar/omgwtfssl
+    restart: "no"
+    volumes:
+      - ./certs:/certs
+    environment:
+      - SSL_SUBJECT=nextcloud.local
+      - CA_SUBJECT=admin@local.com
+      - SSL_KEY=/certs/nextcloud.local.key
+      - SSL_CSR=/certs/nextcloud.local.csr
+      - SSL_CERT=/certs/nextcloud.local.crt
+    networks:
+      - nextcloud-network
+
+networks:
+  nextcloud-network:
+    driver: bridge

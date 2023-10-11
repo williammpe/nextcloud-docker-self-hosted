@@ -15,8 +15,8 @@ Before getting started, make sure you have the following prerequisites installed
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/yourusername/your-nextcloud-repo.git
-   cd your-nextcloud-repo
+   git clone https://github.com/williammpe/nextcloud-docker-self-hosted
+   cd nextcloud-docker-self-hosted
    ```
 
 2. Create a file named `db.env` in the root directory and add your PostgreSQL environment variables. For example:
@@ -30,20 +30,28 @@ Before getting started, make sure you have the following prerequisites installed
 3. Create a file named `nginx-proxy.conf` in the root directory to configure Nginx for your Nextcloud instance. You can use a sample Nginx configuration file suitable for your needs.
 
 4. Run the following command to generate a self-signed SSL certificate:
-
+4.1 Case you want to use FPM:
    ```bash
-   docker-compose up -d omgwtfssl
+   docker compose -f fpm/docker-compose-certs.yaml up
+   ```
+4.2 Case you want to use Apache:
+   ```bash
+   docker compose -f apache/docker-compose-certs.yaml up
    ```
 
 5. Build and start the Docker containers for Nextcloud and related services:
-
+5.1 Case you want to use FPM:
    ```bash
-   docker-compose up -d
+   docker compose -f fpm/docker-compose.yaml up
+   ```
+5.2 Case you want to use Apache:
+   ```bash
+   docker compose -f apache/docker-compose.yaml up
    ```
 
 ## Access Nextcloud
 
-Once the containers are up and running, you can access your Nextcloud instance through a web browser by navigating to `http://localhost`.
+Once the containers are up and running, you can access your Nextcloud instance through a web browser by navigating to `https://localhost`.
 
 ## Additional Notes
 
